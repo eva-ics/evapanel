@@ -6,7 +6,7 @@ focused on HMI (human-machine-interface) web-applications.
 EvaPanel is developed for Linux. Building Windows binaries is possible, but
 certain functions may not work properly.
 
-![App](app.jpg?raw=true)
+![App](app_preview.jpg?raw=true)
 
 ## Features
 
