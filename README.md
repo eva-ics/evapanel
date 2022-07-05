@@ -3,9 +3,8 @@
 EvaPanel is a lightweight WebKit-based kiosk web-browser with remote controls,
 focused on HMI (human-machine-interface) web-applications.
 
-
-EvaPanel development is focused on Linux. Building Windows binaries is
-possible, but certain functions may not work properly.
+EvaPanel is developed for Linux. Building Windows binaries is possible, but
+certain functions may not work properly.
 
 ## Features
 
