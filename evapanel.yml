@@ -1,0 +1,17 @@
+home_url: http://eva/ui/
+# allow URLs list (URL and sub-urls), home url is automatically included
+# allows any URL if contains "*"
+allowed_urls: []
+zoom: 1
+engine: wasm # wasm or js
+show_cursor: false # show cursor in web view
+debug: true
+# custom user agent suffix
+# MUST match RFC 7231 or the engine falls back to the default one
+#sfx: Plant1
+# bus name: .panel for server, eva.panel.<HOSTNAME> for client
+bus:
+  mode: server # client or server
+  path: /tmp/evapanel.sock
+commands:
+  reboot: sudo reboot # modify if required
