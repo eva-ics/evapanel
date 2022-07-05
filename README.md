@@ -19,7 +19,7 @@ depending on system WebKit libraries makes much easier to apply updates, so
 * Build EvaPanel for your Linux distribution:
 
 ```
-ARCH=$(uname -m) cargo build --release
+./build.sh
 ```
 
 ## Installing a kiosk system
