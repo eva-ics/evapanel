@@ -48,6 +48,13 @@ and OS distribution.
 
 * display control remote functions require *xrandr* and *xbacklight*
 
+* if installing on another system, which has not been used for building,
+  install the following system packages (the minor versions may differ):
+
+```
+apt install -y libwebkit2gtk-4.0-37
+```
+
 * create a user
 
 * configure either graphical or console auto-login (recommended)
