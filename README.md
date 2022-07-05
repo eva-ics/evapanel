@@ -29,7 +29,7 @@ depending on system WebKit libraries makes much easier to apply updates, so
 * Prepare the system (for Ubuntu):
 
 ```
-apt install -y build-essential libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
+apt install -y bash build-essential libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
 ```
 
 * Build EvaPanel for your Linux distribution:
