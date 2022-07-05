@@ -3,18 +3,33 @@
 EvaPanel is a lightweight WebKit-based kiosk web-browser with remote controls,
 focused on HMI (human-machine-interface) web-applications.
 
-EvaPanel works fine with most of web apps even on embedded systems with <512MB
-RAM (min. 400MB of RAM is recommended).
 
 EvaPanel development is focused on Linux. Building Windows binaries is
 possible, but certain functions may not work properly.
+
+## Features
+
+* A solution for full-screen kiosk applications
+
+* Works fine with most of web apps even on embedded systems with 512MB
+  RAM (min. 300MB total system RAM is recommended)
+
+* Can restrict navigation to allowed URLs only
+
+* Remote-controlled
 
 ## Building
 
 It is quite hard to compile a static binary with WebKit embedded. Also,
 depending on system WebKit libraries makes much easier to apply updates, so
 
-* Install Rust
+* [Install Rust](https://www.rust-lang.org/tools/install)
+
+* Prepare the system (for Ubuntu):
+
+```
+apt install -y build-essential libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
+```
 
 * Build EvaPanel for your Linux distribution:
 
@@ -32,7 +47,8 @@ depending on system WebKit libraries makes much easier to apply updates, so
 
 * configure either graphical or console auto-login (recommended)
 
-* in case of console auto-login, put the following into user's home directory:
+* in case of console auto-login, put the following into the user's home
+  directory:
 
 append to **~/.profile**
 
@@ -40,14 +56,14 @@ append to **~/.profile**
 evapanel-launch.sh
 ```
 
-**.xinitrc**
+* put **.xinitrc** into the user's home directory:
 
 ```
 i3 &
 evapanel
 ```
 
-* put compiled *evapanel* binary and evapanel-launch.sh script to e.g.
+* put the compiled *evapanel* binary and *evapanel-launch.sh* script to e.g.
   */usr/local/bin/*
 
 * put *evapanel.yml* to the user's home directory and edit the properties.
