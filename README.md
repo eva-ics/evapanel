@@ -52,6 +52,43 @@ evapanel
 
 * put *evapanel.yml* to the user's home directory and edit the properties.
 
+## HMI apps integration
+
+To transparently integrate a HMI application with EvaPanel, it must meet the
+following requirements:
+
+### Remote login/logout
+
+The app must have JavaScript methods:
+
+```javascript
+$eva.hmi.login(user, password);
+$eva.hmi.logout();
+```
+
+### Alerts
+
+```javascript
+$eva.hmi.display_alert(text, level, timeout);
+```
+
+where:
+
+* text - a text to display
+* level - info or warning
+* timeout - an optional parameter, sets a timeout after which the alert is
+  automatically closed
+
+### Automatic WASM support
+
+If [EVA JS Framework](https://github.com/alttch/eva-js-framework) WebAssembly
+extension is installed, the app can turn it on/off, based on the kiosk's
+configuration:
+
+```javascript
+$eva.wasm = config.wasm && (!navigator.userAgent.startsWith('EvaPanel ') || navigator.userAgent.search('/wasm ') > 0);
+```
+
 ## Remote control
 
 EvaPanel uses [BUS/RT](https://busrt.bma.ai/) protocol.
@@ -62,4 +99,12 @@ local socket is opened (default: */tmp/evapanel.sock*)
 Commands can be called with the default bus client, payload format is
 MessagePack.
 
-List of the available commands is provided in *eapi.yml*.
+In server mode, the process registers itself as ".panel". In client mode, as
+"eva.panel.HOSTNAME".
+
+List of the available commands is provided in [*eapi.yml*](eapi.yml)
+
+## Orchestrating
+
+Available with [EVA ICS v4 HMI Kiosk manger
+service](https://eva-ics4.readthedocs.io/en/latest/svc/eva-kioskman.html).

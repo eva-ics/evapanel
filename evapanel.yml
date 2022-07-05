@@ -5,11 +5,11 @@ allowed_urls: []
 zoom: 1
 engine: wasm # wasm or js
 show_cursor: false # show cursor in web view
-debug: true
+debug: true # debug log, also required for dev.open/dev.close
 # custom user agent suffix
 # MUST match RFC 7231 or the engine falls back to the default one
 #sfx: Plant1
-# bus name: .panel for server, eva.panel.<HOSTNAME> for client
+# bus name: .panel for server, eva.panel.HOSTNAME for client
 bus:
   mode: server # client or server
   path: /tmp/evapanel.sock

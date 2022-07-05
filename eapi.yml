@@ -1,0 +1,98 @@
+login:
+  des: Perform log-in
+  par:
+    - nam: login
+      typ: String
+      des: user login
+      req: true
+    - nam: password
+      typ: String
+      des: user password
+      req: true
+  ret:
+logout:
+  des: Perform log-out
+  par:
+  ret:
+test:
+  des: Test the bus
+  par:
+  ret:
+info:
+  des: Get the current session info
+  par:
+  ret: Session info (struct)
+  exm: |
+    {
+        "agent": "EvaPanel",
+        "arch": "x86_64",
+        "current_url": "http://eva/ui/",
+        "debug": true,
+        "engine": "wasm",
+        "home_url": "http://eva/ui/",
+        "state": "active",
+        "version": "0.1.1"
+    }
+alert:
+  des: Display an alert
+  par:
+    - nam: text
+      typ: String
+      des: Text to display
+      req: true
+    - nam: level
+      typ: String
+      des: Level (info/warning)
+      req: false
+  ret:
+eval:
+  des: Execute JavaScript code inside the web-app
+  par:
+    - nam: code
+      typ: String
+      des: JavaScript code to execute
+      req: true
+navigate:
+  des: Open an URL
+  par:
+    - nam: url
+      typ: String
+      des: URL (opens home if not set)
+      req: false
+  ret:
+display:
+  des: Display control
+  par:
+    - nam: "on"
+      typ: bool
+      des: Display on/off
+      req: false
+    - nam: brightness
+      typ: f32
+      des: Display brightness
+      req: false
+  ret:
+zoom:
+  des: Web zoom level
+  par:
+    - nam: level
+      typ: f64
+      des: Zoom level
+      req: true
+  ret:
+reload:
+  des: Reload the kiosk process
+  par:
+  ret:
+reboot:
+  des: Reboot the kiosk machine
+  par:
+  ret:
+dev.open:
+  des: Open development console
+  par:
+  ret:
+dev.close:
+  des: Close development console
+  par:
+  ret:
