@@ -48,7 +48,7 @@ and OS distribution.
 
 * display control remote functions require *xrandr* and *xbacklight*
 
-* if installing on another system, which has not been used for building,
+* if installing on another system, which had not been used for building,
   install the following system packages (the minor versions may differ):
 
 ```
