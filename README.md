@@ -22,7 +22,8 @@ certain functions may not work properly.
 ## Building
 
 It is quite hard to compile a static binary with WebKit embedded. Also,
-depending on system WebKit libraries makes much easier to apply updates, so
+depending on system WebKit libraries makes much easier to apply updates. So
+EvaPanel is redistributed as the source-code only and can be built with:
 
 * [Install Rust](https://www.rust-lang.org/tools/install)
 
@@ -37,6 +38,9 @@ apt install -y bash build-essential libwebkit2gtk-4.0-dev libayatana-appindicato
 ```
 ./build.sh
 ```
+
+After, the binary can be shared between kiosks with the same CPU architecture
+and OS distribution.
 
 ## Installing a kiosk system
 
