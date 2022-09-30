@@ -1,5 +1,5 @@
 use crate::common::{system_cmd, system_cmd_x, AlertLevel, BusConfig, BusMode, PanelInfo, UEvent};
-use elbus::rpc::{Rpc, RpcClient, RpcError, RpcEvent, RpcHandlers, RpcResult};
+use busrt::rpc::{Rpc, RpcClient, RpcError, RpcEvent, RpcHandlers, RpcResult};
 use eva_common::payload::{pack, unpack};
 use eva_common::Error;
 use eva_common::{err_logger, EResult};
@@ -242,7 +242,7 @@ impl RpcHandlers for Handlers {
         }
     }
     async fn handle_notification(&self, _event: RpcEvent) {}
-    async fn handle_frame(&self, _frame: elbus::Frame) {}
+    async fn handle_frame(&self, _frame: busrt::Frame) {}
 }
 
 #[allow(clippy::case_sensitive_file_extension_comparisons)]
@@ -260,15 +260,15 @@ pub async fn launch_bus(
     let sleep_step = Duration::from_millis(200);
     match bus.mode() {
         BusMode::Server => {
-            let mut broker = elbus::broker::Broker::new();
-            let server_config = elbus::broker::ServerConfig::new().timeout(DEFAULT_BUS_TIMEOUT);
+            let mut broker = busrt::broker::Broker::new();
+            let server_config = busrt::broker::ServerConfig::new().timeout(DEFAULT_BUS_TIMEOUT);
             if path.ends_with(".sock") || path.ends_with(".socket") || path.ends_with(".ipc") {
                 broker.spawn_unix_server(path, server_config).await?;
-                info!("ELBUS control UNIX socket: {}", path);
+                info!("BUS/RT control UNIX socket: {}", path);
                 local_sock = true;
             } else {
                 broker.spawn_tcp_server(path, server_config).await?;
-                info!("ELBUS control TCP socket: {}", path);
+                info!("BUS/RT control TCP socket: {}", path);
             };
             let client = broker.register_client(".panel").await.unwrap();
             let _rpc = RpcClient::new(client, handlers);
@@ -278,11 +278,11 @@ pub async fn launch_bus(
                 "eva.panel.{}",
                 hostname::get().map_err(Error::failed)?.to_string_lossy()
             );
-            let client = elbus::ipc::Client::connect(
-                &elbus::ipc::Config::new(path, &name).timeout(DEFAULT_BUS_TIMEOUT),
+            let client = busrt::ipc::Client::connect(
+                &busrt::ipc::Config::new(path, &name).timeout(DEFAULT_BUS_TIMEOUT),
             )
             .await?;
-            info!("connected to ELBUS broker at {} as {}", path, name);
+            info!("connected to BUS/RT broker at {} as {}", path, name);
             let rpc = RpcClient::new(client, handlers);
             tokio::spawn(async move {
                 while rpc.client().lock().await.is_connected() {

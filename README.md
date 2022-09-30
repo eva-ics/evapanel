@@ -119,7 +119,7 @@ $eva.wasm = config.wasm && (!navigator.userAgent.startsWith('EvaPanel ') || navi
 
 ## Remote control
 
-EvaPanel uses [BUS/RT](https://busrt.bma.ai/) protocol.
+EvaPanel uses [BUS/RT](https://github.com/alttch/busrt) protocol.
 
 EvaPanel can work in two modes: bus server and bus client. In case of client, a
 local socket is opened (default: */tmp/evapanel.sock*)

@@ -1,6 +1,6 @@
 [package]
 name = "evapanel"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Bohemia Automation", "Altertech"]
 description = "EVA ICS HMI kiosk browser"
@@ -15,9 +15,9 @@ once_cell = "1.12.0"
 bmart = "0.2.2"
 env_logger = "0.9.0"
 log = "0.4.17"
-eva-common = { version = "0.1.139", features = ["payload", "elbus-rpc"] }
+eva-common = { version = "0.1.176", features = ["payload", "bus-rpc"] }
 tokio = { version = "1.15.0", features = ["full"] }
-elbus = { version = "0.2.0", features = ["broker", "rpc", "ipc"] }
+busrt = { version = "0.3", features = ["broker", "rpc", "ipc"] }
 async-trait = "0.1.53"
 triggered = "0.1.2"
 serde = { version = "1.0.137", features = ["derive"] }
