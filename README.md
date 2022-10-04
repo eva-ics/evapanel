@@ -135,4 +135,4 @@ List of the available commands is provided in [*eapi.yml*](eapi.yml)
 ## Orchestrating
 
 Available with [EVA ICS v4 HMI Kiosk manger
-service](https://eva-ics4.readthedocs.io/en/latest/svc/eva-kioskman.html).
+service](https://info.bma.ai/en/actual/eva4/svc/eva-kioskman.html).
