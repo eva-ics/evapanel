@@ -109,12 +109,12 @@ where:
 
 ### Automatic WASM support
 
-If [EVA JS Framework](https://github.com/alttch/eva-js-framework) WebAssembly
-extension is installed, the app can turn it on/off, based on the kiosk's
-configuration:
+If [EVA ICS WebEngine](https://info.bma.ai/en/actual/eva-webengine/index.html)
+WebAssembly extension is installed, the app can turn it on/off, based on the
+kiosk's configuration:
 
 ```javascript
-$eva.wasm = config.wasm && (!navigator.userAgent.startsWith('EvaPanel ') || navigator.userAgent.search('/wasm ') > 0);
+eva.wasm = config.wasm && (!window.navigator.userAgent.startsWith('EvaPanel ') || window.navigator.userAgent.search('/wasm ') > 0);
 ```
 
 ## Remote control
