@@ -86,7 +86,7 @@ impl Default for Engine {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct BusConfig {
     mode: BusMode,
     path: String,
@@ -100,6 +100,13 @@ impl BusConfig {
     #[inline]
     pub fn mode(&self) -> BusMode {
         self.mode
+    }
+    #[inline]
+    #[allow(clippy::case_sensitive_file_extension_comparisons)]
+    pub fn is_unix_sock(&self) -> bool {
+        self.path.ends_with(".sock")
+            || self.path.ends_with(".socket")
+            || self.path.ends_with(".ipc")
     }
 }
 

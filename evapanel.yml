@@ -1,7 +1,7 @@
 home_url: http://eva/ui/
 # allow URLs list (URL and sub-urls), home url is automatically included
 # allows any URL if contains "*"
-allowed_urls: []
+allowed_urls: ['*']
 zoom: 1
 engine: wasm # wasm or js
 show_cursor: false # show cursor in web view
@@ -13,5 +13,6 @@ debug: true # debug log, also required for dev.open/dev.close
 bus:
   mode: server # client or server
   path: /tmp/evapanel.sock
+  #path: 0.0.0.0:5577
 commands:
   reboot: sudo reboot # modify if required

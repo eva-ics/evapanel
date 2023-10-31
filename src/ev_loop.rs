@@ -1,4 +1,4 @@
-use crate::common::{prepare_js_str, State, UEvent};
+use crate::common::{prepare_js_str, BusConfig, State, UEvent};
 use eva_common::err_logger;
 use log::info;
 use webkit2gtk::WebViewExt;
@@ -18,7 +18,12 @@ err_logger!();
 #[allow(clippy::cast_possible_truncation)]
 #[allow(clippy::cast_sign_loss)]
 #[allow(deprecated)]
-pub fn run(event_loop: EventLoop<UEvent>, webview: WebView, debug: bool) {
+pub fn run(
+    event_loop: EventLoop<UEvent>,
+    webview: WebView,
+    debug: bool,
+    bus_config: Option<BusConfig>,
+) {
     let wv = webview.webview();
     let cancellable: Option<&gio::Cancellable> = None;
     event_loop.run(move |event, _, control_flow| {
@@ -129,6 +134,11 @@ pub fn run(event_loop: EventLoop<UEvent>, webview: WebView, debug: bool) {
             } => {
                 info!("window closed, exiting");
                 crate::set_stopped();
+                if let Some(ref bus) = bus_config {
+                    if bus.is_unix_sock() {
+                        let _ = std::fs::remove_file(bus.path());
+                    }
+                }
                 *control_flow = ControlFlow::Exit;
             }
             Event::WindowEvent {

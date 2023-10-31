@@ -48,7 +48,7 @@ impl RpcHandlers for Handlers {
         }
         macro_rules! need_debug {
             () => {
-                if !crate::DEBUG.load(atomic::Ordering::SeqCst) {
+                if !crate::DEBUG.load(atomic::Ordering::Relaxed) {
                     return Err(Error::access("debug mode is not enabled").into());
                 }
             };
@@ -245,7 +245,6 @@ impl RpcHandlers for Handlers {
     async fn handle_frame(&self, _frame: busrt::Frame) {}
 }
 
-#[allow(clippy::case_sensitive_file_extension_comparisons)]
 pub async fn launch_bus(
     bus: &BusConfig,
     api_proxy: EventLoopProxy<UEvent>,
@@ -256,22 +255,23 @@ pub async fn launch_bus(
         api_proxy,
         info: panel_info,
     };
-    let mut local_sock = false;
     let sleep_step = Duration::from_millis(200);
     match bus.mode() {
         BusMode::Server => {
             let mut broker = busrt::broker::Broker::new();
             let server_config = busrt::broker::ServerConfig::new().timeout(DEFAULT_BUS_TIMEOUT);
-            if path.ends_with(".sock") || path.ends_with(".socket") || path.ends_with(".ipc") {
+            if bus.is_unix_sock() {
                 broker.spawn_unix_server(path, server_config).await?;
                 info!("BUS/RT control UNIX socket: {}", path);
-                local_sock = true;
             } else {
                 broker.spawn_tcp_server(path, server_config).await?;
                 info!("BUS/RT control TCP socket: {}", path);
             };
             let client = broker.register_client(".panel").await.unwrap();
             let _rpc = RpcClient::new(client, handlers);
+            while crate::is_active() {
+                tokio::time::sleep(sleep_step).await;
+            }
         }
         BusMode::Client => {
             let name = format!(
@@ -284,19 +284,11 @@ pub async fn launch_bus(
             .await?;
             info!("connected to BUS/RT broker at {} as {}", path, name);
             let rpc = RpcClient::new(client, handlers);
-            tokio::spawn(async move {
-                while rpc.client().lock().await.is_connected() {
-                    tokio::time::sleep(sleep_step).await;
-                }
-                std::process::exit(0);
-            });
+            while rpc.client().lock().await.is_connected() {
+                tokio::time::sleep(sleep_step).await;
+            }
+            std::process::exit(0);
         }
-    }
-    while crate::is_active() {
-        tokio::time::sleep(sleep_step).await;
-    }
-    if local_sock {
-        let _r = tokio::fs::remove_file(&path).await;
     }
     Ok(())
 }

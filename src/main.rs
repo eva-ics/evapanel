@@ -31,12 +31,12 @@ const WEB_ENGINE: &str = "WebKit";
 
 #[inline]
 fn set_stopped() {
-    ACTIVE.store(false, atomic::Ordering::SeqCst);
+    ACTIVE.store(false, atomic::Ordering::Relaxed);
 }
 
 #[inline]
 fn is_active() -> bool {
-    ACTIVE.load(atomic::Ordering::SeqCst)
+    ACTIVE.load(atomic::Ordering::Relaxed)
 }
 
 #[derive(Parser)]
@@ -208,10 +208,10 @@ fn main() -> EResult<()> {
         .with_devtools(config.debug)
         .build()
         .map_err(Error::failed)?;
-    DEBUG.store(config.debug, atomic::Ordering::SeqCst);
+    DEBUG.store(config.debug, atomic::Ordering::Relaxed);
     webview.zoom(config.zoom);
     info!("starting event loop");
-    if let Some(bus) = config.bus {
+    if let Some(ref bus) = config.bus {
         let panel_info = PanelInfo {
             home_url: config.home_url,
             agent: AGENT_NAME.to_owned(),
@@ -221,10 +221,11 @@ fn main() -> EResult<()> {
             debug: config.debug,
         };
         let api_proxy = event_loop.create_proxy();
+        let bus_c = bus.clone();
         thread::spawn(move || {
-            eapi::launch(&bus, api_proxy, panel_info);
+            eapi::launch(&bus_c, api_proxy, panel_info);
         });
     }
-    ev_loop::run(event_loop, webview, config.debug);
+    ev_loop::run(event_loop, webview, config.debug, config.bus);
     Ok(())
 }
