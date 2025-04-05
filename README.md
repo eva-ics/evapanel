@@ -33,15 +33,6 @@ EvaPanel is redistributed as the source-code only and can be built with:
 apt install -y bash build-essential libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
 ```
 
-* Build EvaPanel for your Linux distribution:
-
-```
-./build.sh
-```
-
-After, the binary can be shared between kiosks with the same CPU architecture
-and OS distribution.
-
 ## Installing a kiosk system
 
 * install Linux and *xorg* with some lightweight window manager (e.g. *i3wm*)

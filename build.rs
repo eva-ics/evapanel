@@ -9,4 +9,9 @@ fn main() {
     let icon = ico::IconImage::read_png(fs::File::open("assets/evapanel.png").unwrap()).unwrap();
     fs::create_dir_all("res").unwrap();
     fs::write("res/evapanel.rgba", icon.rgba_data()).unwrap();
+    fs::write(
+        "res/compile-arch",
+        std::env::var("CARGO_CFG_TARGET_ARCH").unwrap(),
+    )
+    .unwrap();
 }
