@@ -7,8 +7,8 @@ use log::{info, warn};
 use serde::Deserialize;
 use std::sync::atomic;
 use std::time::Duration;
+use tao::event_loop::EventLoopProxy;
 use tokio::sync::oneshot;
-use wry::application::event_loop::EventLoopProxy;
 
 err_logger!();
 
@@ -266,7 +266,7 @@ pub async fn launch_bus(
             } else {
                 broker.spawn_tcp_server(path, server_config).await?;
                 info!("BUS/RT control TCP socket: {}", path);
-            };
+            }
             let client = broker.register_client(".panel").await.unwrap();
             let _rpc = RpcClient::new(client, handlers);
             while crate::is_active() {

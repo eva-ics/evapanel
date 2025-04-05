@@ -1,8 +1,10 @@
+title: "EVA ICS Panel"
 home_url: http://eva/ui/
 # allow URLs list (URL and sub-urls), home url is automatically included
 # allows any URL if contains "*"
 allowed_urls: ['*']
 zoom: 1
+fullscreen: true # fullscreen mode
 engine: wasm # wasm or js
 show_cursor: false # show cursor in web view
 debug: true # debug log, also required for dev.open/dev.close

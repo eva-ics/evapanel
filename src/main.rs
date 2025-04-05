@@ -1,16 +1,18 @@
 use clap::Parser;
 use eva_common::{EResult, Error};
-use log::{debug, info};
+use log::{debug, error, info};
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::sync::atomic;
 use std::thread;
-use wry::{
-    application::{event_loop::EventLoop, window::Fullscreen, window::WindowBuilder},
-    webview::WebViewBuilder,
+
+use tao::{
+    event_loop::{EventLoop, EventLoopBuilder},
+    window::{Fullscreen, WindowBuilder},
 };
+use wry::WebViewBuilder;
 
 mod common;
 mod eapi;
@@ -47,6 +49,11 @@ struct Args {
 }
 
 #[inline]
+fn default_title() -> String {
+    "EVA ICS Panel".to_owned()
+}
+
+#[inline]
 fn default_home_url() -> String {
     "http://eva/ui/".to_owned()
 }
@@ -64,6 +71,8 @@ fn default_reboot_cmd() -> String {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Config {
+    #[serde(default = "default_title")]
+    title: String,
     #[serde(default = "default_home_url")]
     home_url: String,
     #[serde(default = "default_zoom")]
@@ -72,6 +81,8 @@ struct Config {
     engine: common::Engine,
     #[serde(default)]
     allowed_urls: HashSet<String>,
+    #[serde(default)]
+    fullscreen: bool,
     #[serde(default)]
     show_cursor: bool,
     #[serde(default)]
@@ -92,10 +103,12 @@ struct Commands {
 impl Default for Config {
     fn default() -> Self {
         Self {
+            title: default_title(),
             home_url: default_home_url(),
             zoom: default_zoom(),
             engine: <_>::default(),
             allowed_urls: HashSet::new(),
+            fullscreen: false,
             show_cursor: false,
             debug: false,
             sig: None,
@@ -186,30 +199,41 @@ fn main() -> EResult<()> {
     HOME_URL.set(config.home_url.clone()).unwrap();
     REBOOT_CMD.set(config.commands.reboot).unwrap();
     ALLOWED_URLS.set(allowed_urls).unwrap();
-    let event_loop: EventLoop<UEvent> = EventLoop::with_user_event();
+    let event_loop: EventLoop<UEvent> = EventLoopBuilder::with_user_event().build();
     info!("creating HMI window");
     let window = WindowBuilder::new()
-        .with_title("EVA ICS Panel")
+        .with_title(&config.title)
         .build(&event_loop)
         .map_err(Error::failed)?;
     window.set_cursor_visible(config.show_cursor);
-    window.set_fullscreen(Some(Fullscreen::Borderless(None)));
+    if config.fullscreen {
+        window.set_fullscreen(Some(Fullscreen::Borderless(None)));
+    }
     if let Some(monitor) = window.current_monitor().and_then(|v| v.name()) {
         info!("monitor: {}", monitor);
         MONITOR.set(monitor).unwrap();
     }
     info!("creating Web view");
-    let webview = WebViewBuilder::new(window)
-        .map_err(Error::failed)?
+    let builder = WebViewBuilder::new()
         .with_user_agent(&user_agent)
         .with_navigation_handler(move |url| allow_any || url_allowed(&url))
         .with_url(&config.home_url)
-        .map_err(Error::failed)?
-        .with_devtools(config.debug)
-        .build()
-        .map_err(Error::failed)?;
+        .with_devtools(config.debug);
+
+    #[cfg(target_os = "windows")]
+    let webview = builder.build(&window)?;
+    #[cfg(target_os = "linux")]
+    let webview = {
+        use tao::platform::unix::WindowExtUnix;
+        use wry::WebViewBuilderExtUnix;
+        let vbox = window.default_vbox().unwrap();
+        builder.build_gtk(vbox).map_err(Error::failed)?
+    };
+
     DEBUG.store(config.debug, atomic::Ordering::Relaxed);
-    webview.zoom(config.zoom);
+    if let Err(e) = webview.zoom(config.zoom) {
+        error!("zoom error: {}", e);
+    }
     info!("starting event loop");
     if let Some(ref bus) = config.bus {
         let panel_info = PanelInfo {

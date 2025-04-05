@@ -1,16 +1,13 @@
 use crate::common::{prepare_js_str, BusConfig, State, UEvent};
 use eva_common::err_logger;
-use log::info;
-use webkit2gtk::WebViewExt;
-use wry::webview::WebviewExtUnix;
-use wry::{
-    application::{
-        event::{ElementState, Event, StartCause, WindowEvent},
-        event_loop::{ControlFlow, EventLoop},
-        keyboard::KeyCode,
-    },
-    webview::WebView,
+use log::{error, info};
+use tao::{
+    event::{ElementState, Event, StartCause, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    keyboard::KeyCode,
 };
+use webkit2gtk::WebViewExt;
+use wry::{WebView, WebViewExtUnix as _};
 
 err_logger!();
 
@@ -25,7 +22,7 @@ pub fn run(
     bus_config: Option<BusConfig>,
 ) {
     let wv = webview.webview();
-    let cancellable: Option<&gio::Cancellable> = None;
+    let cancellable: Option<&webkit2gtk::gio::Cancellable> = None;
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
         match event {
@@ -34,10 +31,8 @@ pub fn run(
                     wv.run_javascript("window.location.href", cancellable, |res| {
                         let mut location = None;
                         if let Ok(result) = res {
-                            if let Some(ref ctx) = result.global_context() {
-                                if let Some(val) = result.value().and_then(|v| v.to_string(ctx)) {
-                                    location = Some(val);
-                                }
+                            if let Some(val) = result.js_value() {
+                                location = Some(val.to_string());
                             }
                         }
                         let _r = resp.send(location);
@@ -45,7 +40,7 @@ pub fn run(
                 }
                 UEvent::GetState(resp) => {
                     wv.run_javascript(
-                        r#"{
+                        r"{
                         let result = 0;
                         if (window.$eva.api_token) {
                             result = 2;
@@ -53,16 +48,16 @@ pub fn run(
                             result = 1;
                         }
                         result
-                        }"#,
+                        }",
                         cancellable,
                         |res| {
                             let mut state = State::Preparing;
                             if let Ok(result) = res {
-                                if let Some(ref ctx) = result.global_context() {
-                                    if let Some(val) = result.value().and_then(|v| v.to_number(ctx))
-                                    {
-                                        state = (val as u8).into();
-                                    }
+                                if let Some(val) = result
+                                    .js_value()
+                                    .and_then(|v| v.to_string().parse::<u8>().ok())
+                                {
+                                    state = val.into();
                                 }
                             }
                             let _r = resp.send(state);
@@ -73,7 +68,7 @@ pub fn run(
                     info!("login requested ({})", login);
                     webview
                         .evaluate_script(&format!(
-                            r#"$eva.hmi.login('{}', '{}')"#,
+                            r"$eva.hmi.login('{}', '{}')",
                             prepare_js_str(&login),
                             prepare_js_str(&password)
                         ))
@@ -84,7 +79,7 @@ pub fn run(
                     info!("sending alert ({})", level_str);
                     webview
                         .evaluate_script(&format!(
-                            r#"$eva.hmi.display_alert('{}', '{}', {})"#,
+                            r"$eva.hmi.display_alert('{}', '{}', {})",
                             prepare_js_str(&text),
                             prepare_js_str(&level_str),
                             timeout
@@ -106,7 +101,9 @@ pub fn run(
                 }
                 UEvent::Zoom(level) => {
                     info!("zoom to {} requested", level);
-                    webview.zoom(level);
+                    if let Err(e) = webview.zoom(level) {
+                        error!("zoom error: {}", e);
+                    }
                 }
                 UEvent::Navigate(n_url) => {
                     let url = n_url
@@ -148,7 +145,7 @@ pub fn run(
                 if debug && event.state == ElementState::Released {
                     #[allow(clippy::single_match)]
                     match event.physical_key {
-                        KeyCode::F6 => {
+                        KeyCode::F12 => {
                             if webview.is_devtools_open() {
                                 webview.close_devtools();
                             } else {
