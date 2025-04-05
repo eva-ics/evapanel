@@ -278,6 +278,7 @@ pub async fn launch_bus(
             while crate::is_active() {
                 tokio::time::sleep(sleep_step).await;
             }
+            Ok(())
         }
         BusMode::Client => {
             let name = format!(
