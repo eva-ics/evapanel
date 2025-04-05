@@ -8,14 +8,14 @@ fullscreen: true # fullscreen mode
 window_size: [800, 500] # window size for non-fullscreen mode
 engine: wasm # wasm or js
 show_cursor: false # show cursor in web view
-debug: true # debug log, also required for dev.open/dev.close
+#debug: true # debug log, also required for dev.open/dev.close
 # custom user agent suffix
 # MUST match RFC 7231 or the engine falls back to the default one
 #sfx: Plant1
 # bus name: .panel for server, eva.panel.HOSTNAME for client
-bus:
-  mode: server # client or server
-  path: /tmp/evapanel.sock
-  #path: 0.0.0.0:5577
-commands:
-  reboot: sudo reboot # modify if required
+#bus:
+  #mode: client # server (Linux only) or client
+  #path: /tmp/evapanel.sock
+  #path: 192.168.1.100:7791 # IP:PORT of BUS/RT broker (e.g. EVA ICS Kiosk manager)
+#commands:
+  #reboot: sudo reboot # modify if required
