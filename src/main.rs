@@ -29,6 +29,9 @@ static DEBUG: atomic::AtomicBool = atomic::AtomicBool::new(false);
 const AGENT_NAME: &str = "EvaPanel";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const ARCH: &str = env!("ARCH");
+#[cfg(target_os = "windows")]
+const WEB_ENGINE: &str = "Chrome";
+#[cfg(target_os = "linux")]
 const WEB_ENGINE: &str = "WebKit";
 
 #[inline]
@@ -36,6 +39,7 @@ fn set_stopped() {
     ACTIVE.store(false, atomic::Ordering::Relaxed);
 }
 
+#[cfg(target_os = "linux")]
 #[inline]
 fn is_active() -> bool {
     ACTIVE.load(atomic::Ordering::Relaxed)
@@ -208,7 +212,10 @@ fn main() -> EResult<()> {
     window.set_cursor_visible(config.show_cursor);
     if config.fullscreen {
         window.set_fullscreen(Some(Fullscreen::Borderless(None)));
+    } else {
+        window.set_inner_size(tao::dpi::LogicalSize::new(900.0, 600.0));
     }
+    #[cfg(target_os = "linux")]
     if let Some(monitor) = window.current_monitor().and_then(|v| v.name()) {
         info!("monitor: {}", monitor);
         MONITOR.set(monitor).unwrap();
@@ -221,7 +228,7 @@ fn main() -> EResult<()> {
         .with_devtools(config.debug);
 
     #[cfg(target_os = "windows")]
-    let webview = builder.build(&window)?;
+    let webview = builder.build(&window).map_err(Error::failed)?;
     #[cfg(target_os = "linux")]
     let webview = {
         use tao::platform::unix::WindowExtUnix;

@@ -9,12 +9,12 @@ license = "propietary"
 [dependencies]
 wry = { version =  "0.50.5", features = ["devtools"] }
 once_cell = "1.12.0"
-bmart = "0.2.2"
+bmart = "0.2.11"
 env_logger = "0.9.0"
 log = "0.4.17"
-eva-common = { version = "0.3.7", features = ["payload", "bus-rpc"] }
+eva-common = { version = "0.3.93", features = ["payload", "bus-rpc"] }
 tokio = { version = "1.15.0", features = ["full"] }
-busrt = { version = "0.4", features = ["broker", "rpc", "ipc"] }
+busrt = { version = "0.4", features = ["rpc", "ipc"] }
 async-trait = "0.1.53"
 triggered = "0.1.2"
 serde = { version = "1.0.137", features = ["derive"] }
@@ -22,8 +22,14 @@ serde_yaml = "0.8.24"
 shellexpand = "2.1.0"
 hostname = "0.3.1"
 tao = "0.32.8"
-webkit2gtk = { version = "2.0.1", features = [ "v2_22" ] }
 clap = { version = "4.5.35", features = ["derive"] }
+submap = { version = "0.3.5", features = ["digest"] }
+serde_json = "1.0.140"
+async-channel = "2.3.1"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+busrt = { version = "0.4", features = ["broker", "rpc", "ipc"] }
+webkit2gtk = { version = "2.0.1", features = [ "v2_22" ] }
 
 [profile.release]
 strip = true

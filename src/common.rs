@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::ffi::OsStr;
 use std::future::Future;
 use std::time::Duration;
-use tokio::sync::oneshot;
 
 const CMD_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -17,7 +16,7 @@ pub struct PanelInfo {
     pub(crate) debug: bool,
 }
 
-#[derive(bmart::tools::EnumStr, Serialize, Copy, Clone)]
+#[derive(bmart::tools::EnumStr, Serialize, Copy, Clone, Debug)]
 #[repr(u8)]
 #[serde(rename_all = "lowercase")]
 pub enum State {
@@ -76,6 +75,7 @@ pub enum Engine {
 #[derive(Deserialize, Serialize, bmart::tools::EnumStr, Copy, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum BusMode {
+    #[cfg(target_os = "linux")]
     Server,
     Client,
 }
@@ -120,8 +120,8 @@ pub enum UEvent {
     Reload,
     OpenDevTools,
     CloseDevTools,
-    GetState(oneshot::Sender<State>),
-    GetLocation(oneshot::Sender<Option<String>>),
+    GetState(async_channel::Sender<State>),
+    GetLocation(async_channel::Sender<Option<String>>),
 }
 
 #[derive(Deserialize, bmart::tools::EnumStr)]

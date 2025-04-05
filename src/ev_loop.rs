@@ -6,8 +6,7 @@ use tao::{
     event_loop::{ControlFlow, EventLoop},
     keyboard::KeyCode,
 };
-use webkit2gtk::WebViewExt;
-use wry::{WebView, WebViewExtUnix as _};
+use wry::WebView;
 
 err_logger!();
 
@@ -21,26 +20,25 @@ pub fn run(
     debug: bool,
     bus_config: Option<BusConfig>,
 ) {
-    let wv = webview.webview();
-    let cancellable: Option<&webkit2gtk::gio::Cancellable> = None;
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
         match event {
             Event::UserEvent(ev) => match ev {
                 UEvent::GetLocation(resp) => {
-                    wv.run_javascript("window.location.href", cancellable, |res| {
-                        let mut location = None;
-                        if let Ok(result) = res {
-                            if let Some(val) = result.js_value() {
-                                location = Some(val.to_string());
+                    webview
+                        .evaluate_script_with_callback("window.location.href", move |res| {
+                            let mut location = None;
+                            if let Ok(val) = serde_json::from_str::<String>(&res) {
+                                location = Some(val);
                             }
-                        }
-                        let _r = resp.send(location);
-                    });
+                            let _r = resp.send_blocking(location);
+                        })
+                        .log_ef();
                 }
                 UEvent::GetState(resp) => {
-                    wv.run_javascript(
-                        r"{
+                    webview
+                        .evaluate_script_with_callback(
+                            r"{
                         let result = 0;
                         if (window.$eva.api_token) {
                             result = 2;
@@ -49,20 +47,15 @@ pub fn run(
                         }
                         result
                         }",
-                        cancellable,
-                        |res| {
-                            let mut state = State::Preparing;
-                            if let Ok(result) = res {
-                                if let Some(val) = result
-                                    .js_value()
-                                    .and_then(|v| v.to_string().parse::<u8>().ok())
-                                {
+                            move |res| {
+                                let mut state = State::Preparing;
+                                if let Ok(val) = serde_json::from_str::<u8>(&res) {
                                     state = val.into();
                                 }
-                            }
-                            let _r = resp.send(state);
-                        },
-                    );
+                                let _r = resp.send_blocking(state);
+                            },
+                        )
+                        .log_ef();
                 }
                 UEvent::Login(login, password) => {
                     info!("login requested ({})", login);

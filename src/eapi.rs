@@ -8,7 +8,6 @@ use serde::Deserialize;
 use std::sync::atomic;
 use std::time::Duration;
 use tao::event_loop::EventLoopProxy;
-use tokio::sync::oneshot;
 
 err_logger!();
 
@@ -89,12 +88,18 @@ impl RpcHandlers for Handlers {
             }
             "info" => {
                 if payload.is_empty() {
-                    let (tx, rx) = oneshot::channel();
+                    let (tx, rx) = async_channel::bounded(1);
                     send_event!(UEvent::GetState(tx));
-                    let state = rx.await.map_err(Error::failed)?;
-                    let (tx, rx) = oneshot::channel();
+                    let state = tokio::time::timeout(Duration::from_secs(1), rx.recv())
+                        .await
+                        .map_err(|_| Error::timeout())?
+                        .map_err(Error::failed)?;
+                    let (tx, rx) = async_channel::bounded(1);
                     send_event!(UEvent::GetLocation(tx));
-                    let current_url = rx.await.map_err(Error::failed)?;
+                    let current_url = tokio::time::timeout(Duration::from_secs(1), rx.recv())
+                        .await
+                        .map_err(|_| Error::timeout())?
+                        .map_err(Error::failed)?;
                     Ok(Some(pack(
                         &self.info.state_info(state, current_url.as_deref()),
                     )?))
@@ -257,6 +262,7 @@ pub async fn launch_bus(
     };
     let sleep_step = Duration::from_millis(200);
     match bus.mode() {
+        #[cfg(target_os = "linux")]
         BusMode::Server => {
             let mut broker = busrt::broker::Broker::new();
             let server_config = busrt::broker::ServerConfig::new().timeout(DEFAULT_BUS_TIMEOUT);
@@ -290,7 +296,6 @@ pub async fn launch_bus(
             std::process::exit(0);
         }
     }
-    Ok(())
 }
 
 pub fn launch(bus: &BusConfig, api_proxy: EventLoopProxy<UEvent>, panel_info: PanelInfo) {
