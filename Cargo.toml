@@ -26,6 +26,9 @@ submap = { version = "0.3.5", features = ["digest"] }
 serde_json = "1.0.140"
 async-channel = "2.3.1"
 
+[build-dependencies]
+ico = "0.4.0"
+
 [target.'cfg(target_os = "linux")'.dependencies]
 busrt = { version = "0.4", features = ["broker", "rpc", "ipc"] }
 

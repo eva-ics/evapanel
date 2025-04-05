@@ -10,7 +10,7 @@ use std::thread;
 
 use tao::{
     event_loop::{EventLoop, EventLoopBuilder},
-    window::{Fullscreen, WindowBuilder},
+    window::{Fullscreen, Icon, WindowBuilder},
 };
 use wry::WebViewBuilder;
 
@@ -19,6 +19,8 @@ mod eapi;
 mod ev_loop;
 
 use common::{BusConfig, PanelInfo, UEvent};
+
+const APP_ICON: &[u8] = include_bytes!("../res/evapanel.rgba");
 
 static HOME_URL: OnceCell<String> = OnceCell::new();
 static ALLOWED_URLS: OnceCell<HashSet<String>> = OnceCell::new();
@@ -216,6 +218,9 @@ fn main() -> EResult<()> {
         .with_title(&config.title)
         .build(&event_loop)
         .map_err(Error::failed)?;
+    if let Ok(icon) = Icon::from_rgba(APP_ICON.to_vec(), 128, 128) {
+        window.set_window_icon(Some(icon));
+    }
     window.set_cursor_visible(config.show_cursor);
     if config.fullscreen {
         window.set_fullscreen(Some(Fullscreen::Borderless(None)));
