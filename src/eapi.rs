@@ -3,7 +3,7 @@ use busrt::rpc::{Rpc, RpcClient, RpcError, RpcEvent, RpcHandlers, RpcResult};
 use eva_common::payload::{pack, unpack};
 use eva_common::Error;
 use eva_common::{err_logger, EResult};
-use log::{info, warn};
+use log::{error, info, warn};
 use serde::Deserialize;
 use std::sync::atomic;
 use std::time::Duration;
@@ -13,6 +13,7 @@ err_logger!();
 
 const DEFAULT_BUS_TIMEOUT: Duration = Duration::from_secs(5);
 
+#[derive(Clone)]
 pub struct Handlers {
     api_proxy: EventLoopProxy<UEvent>,
     info: PanelInfo,
@@ -260,7 +261,6 @@ pub async fn launch_bus(
         api_proxy,
         info: panel_info,
     };
-    let sleep_step = Duration::from_millis(200);
     match bus.mode() {
         #[cfg(target_os = "linux")]
         BusMode::Server => {
@@ -276,27 +276,34 @@ pub async fn launch_bus(
             let client = broker.register_client(".panel").await.unwrap();
             let _rpc = RpcClient::new(client, handlers);
             while crate::is_active() {
-                tokio::time::sleep(sleep_step).await;
+                tokio::time::sleep(Duration::from_millis(200)).await;
             }
             Ok(())
         }
-        BusMode::Client => {
-            let name = format!(
-                "eva.panel.{}",
-                hostname::get().map_err(Error::failed)?.to_string_lossy()
-            );
-            let client = busrt::ipc::Client::connect(
-                &busrt::ipc::Config::new(path, &name).timeout(DEFAULT_BUS_TIMEOUT),
-            )
-            .await?;
-            info!("connected to BUS/RT broker at {} as {}", path, name);
-            let rpc = RpcClient::new(client, handlers);
-            while rpc.client().lock().await.is_connected() {
-                tokio::time::sleep(sleep_step).await;
+        BusMode::Client => loop {
+            if let Err(e) = handle_bus_client(path, handlers.clone()).await {
+                error!("BUS/RT client error: {}", e);
             }
-            std::process::exit(0);
-        }
+            tokio::time::sleep(Duration::from_secs(5)).await;
+        },
     }
+}
+
+async fn handle_bus_client(path: &str, handlers: Handlers) -> EResult<()> {
+    let name = format!(
+        "eva.panel.{}",
+        hostname::get().map_err(Error::failed)?.to_string_lossy()
+    );
+    let client = busrt::ipc::Client::connect(
+        &busrt::ipc::Config::new(path, &name).timeout(DEFAULT_BUS_TIMEOUT),
+    )
+    .await?;
+    info!("connected to BUS/RT broker at {} as {}", path, name);
+    let rpc = RpcClient::new(client, handlers);
+    while rpc.client().lock().await.is_connected() {
+        tokio::time::sleep(Duration::from_millis(200)).await;
+    }
+    Ok(())
 }
 
 pub fn launch(bus: &BusConfig, api_proxy: EventLoopProxy<UEvent>, panel_info: PanelInfo) {

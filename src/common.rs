@@ -6,7 +6,7 @@ use std::time::Duration;
 
 const CMD_TIMEOUT: Duration = Duration::from_secs(5);
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct PanelInfo {
     pub(crate) home_url: String,
     pub(crate) agent: String,

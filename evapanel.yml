@@ -5,6 +5,7 @@ home_url: http://eva/ui/
 allowed_urls: ['*']
 zoom: 1
 fullscreen: true # fullscreen mode
+window_size: [800, 500] # window size for non-fullscreen mode
 engine: wasm # wasm or js
 show_cursor: false # show cursor in web view
 debug: true # debug log, also required for dev.open/dev.close

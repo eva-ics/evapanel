@@ -62,6 +62,10 @@ fn default_home_url() -> String {
     "http://eva/ui/".to_owned()
 }
 
+fn default_window_size() -> (u32, u32) {
+    (800, 500)
+}
+
 #[inline]
 fn default_zoom() -> f64 {
     1.0
@@ -87,6 +91,8 @@ struct Config {
     allowed_urls: HashSet<String>,
     #[serde(default)]
     fullscreen: bool,
+    #[serde(default = "default_window_size")]
+    window_size: (u32, u32),
     #[serde(default)]
     show_cursor: bool,
     #[serde(default)]
@@ -113,6 +119,7 @@ impl Default for Config {
             engine: <_>::default(),
             allowed_urls: HashSet::new(),
             fullscreen: false,
+            window_size: default_window_size(),
             show_cursor: false,
             debug: false,
             sig: None,
@@ -213,7 +220,10 @@ fn main() -> EResult<()> {
     if config.fullscreen {
         window.set_fullscreen(Some(Fullscreen::Borderless(None)));
     } else {
-        window.set_inner_size(tao::dpi::LogicalSize::new(900.0, 600.0));
+        window.set_inner_size(tao::dpi::LogicalSize::new(
+            config.window_size.0,
+            config.window_size.1,
+        ));
     }
     #[cfg(target_os = "linux")]
     if let Some(monitor) = window.current_monitor().and_then(|v| v.name()) {
