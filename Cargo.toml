@@ -14,7 +14,7 @@ env_logger = "0.11.8"
 log = "0.4.27"
 eva-common = { version = "0.3.93", features = ["payload", "bus-rpc"] }
 tokio = { version = "1.44", features = ["full"] }
-busrt = { version = "0.4", features = ["rpc", "ipc"] }
+busrt = { version = "0.4.18", features = ["rpc", "ipc"] }
 async-trait = "0.1.88"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_yaml = "0.9.33"
