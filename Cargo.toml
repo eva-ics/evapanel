@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Bohemia Automation", "Altertech"]
 description = "EVA ICS HMI kiosk browser"
-license = "propietary"
+license = "Apache-2.0"
 
 [dependencies]
 wry = { version =  "0.50.5", features = ["devtools"] }
