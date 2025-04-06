@@ -1,0 +1,15 @@
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG CROSS_DEB_ARCH=amd64
+
+RUN apt-get -q update
+RUN apt-get -qy install  --no-install-recommends \
+  build-essential \
+  pkg-config \
+  libcairo2-dev:$CROSS_DEB_ARCH \
+  libsoup-3.0-dev:$CROSS_DEB_ARCH \
+  libjavascriptcoregtk-4.1-dev:$CROSS_DEB_ARCH \
+  libwebkit2gtk-4.1-dev:$CROSS_DEB_ARCH
+
+ENV PKG_CONFIG_ALLOW_CROSS=1

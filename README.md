@@ -21,16 +21,29 @@ certain functions may not work properly.
 
 ## Building
 
-It is quite hard to compile a static binary with WebKit embedded. Also,
-depending on system WebKit libraries makes much easier to apply updates. So
-EvaPanel is redistributed as the source-code only and can be built with:
+* [Install Rust](https://www.rust-lang.org/tools/install) and optionally
+  [justfile](https://github.com/casey/just)
 
-* [Install Rust](https://www.rust-lang.org/tools/install)
-
-* Prepare the system (for Ubuntu):
+### Linux x86_64
 
 ```
-apt install -y bash build-essential libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
+just docker-image-x86_64 linux-x86_64
+```
+
+or corresponding commands from the `justfile`.
+
+### Linux ARM64
+
+```
+just docker-image-aarch64 linux-aarch64
+```
+
+### Windows
+
+No special instructions:
+
+```
+cargo build --release
 ```
 
 ## Installing a kiosk system
@@ -43,7 +56,7 @@ apt install -y bash build-essential libwebkit2gtk-4.0-dev libayatana-appindicato
   install the following system packages (the minor versions may differ):
 
 ```
-apt install -y libwebkit2gtk-4.0-37
+apt install -y libwebkit2gtk-4.1-0
 ```
 
 * create a user
@@ -70,6 +83,9 @@ evapanel
   */usr/local/bin/*
 
 * put *evapanel.yml* to the user's home directory and edit the properties.
+
+As an alternative, the program ca be started as a systemd service (make sure
+that either X or Wayland is running).
 
 ## HMI apps integration
 

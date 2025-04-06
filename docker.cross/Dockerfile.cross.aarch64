@@ -1,0 +1,26 @@
+FROM ubuntu:22.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG CROSS_DEB_ARCH=arm64
+
+COPY ./docker.cross/sources.list.arm64 /etc/apt/sources.list
+RUN dpkg --add-architecture $CROSS_DEB_ARCH
+RUN apt-get -q update
+RUN apt-get -qy install  --no-install-recommends \
+  build-essential \
+  g++-aarch64-linux-gnu \
+  pkg-config \
+  libcairo2-dev:$CROSS_DEB_ARCH \
+  libsoup-3.0-dev:$CROSS_DEB_ARCH \
+  libjavascriptcoregtk-4.1-dev:$CROSS_DEB_ARCH \
+  libwebkit2gtk-4.1-dev:$CROSS_DEB_ARCH
+RUN apt-get -qy install --no-install-recommends \
+  libatk1.0-dev:$CROSS_DEB_ARCH \
+  libpango1.0-dev:$CROSS_DEB_ARCH \
+  libgdk-pixbuf2.0-dev:$CROSS_DEB_ARCH \
+  libjavascriptcoregtk-4.1-dev:$CROSS_DEB_ARCH \
+  libsoup-3.0-dev:$CROSS_DEB_ARCH
+
+ENV PKG_CONFIG_ALLOW_CROSS=1 \
+  PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig \
+  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc
