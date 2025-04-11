@@ -142,6 +142,16 @@ pub fn prepare_js_str(s: &str) -> String {
     s.replace('\\', "\\\\").replace('\"', "\\\"")
 }
 
+#[cfg(not(target_os = "windows"))]
+pub fn shell_cmd<'a>(cmd: &'a str) -> impl Future<Output = EResult<()>> + 'a {
+    system_cmd("sh", ["-c", cmd])
+}
+
+#[cfg(target_os = "windows")]
+pub fn shell_cmd<'a>(cmd: &'a str) -> impl Future<Output = EResult<()>> + 'a {
+    system_cmd("pwsh.exe", ["-Command", cmd])
+}
+
 pub fn system_cmd<'a, I, S>(cmd: &'a str, args: I) -> impl Future<Output = EResult<()>> + 'a
 where
     I: IntoIterator<Item = S> + 'a,

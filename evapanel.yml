@@ -17,5 +17,6 @@ show_cursor: false # show cursor in web view
   #mode: client # server (Linux only) or client
   #path: /tmp/evapanel.sock
   #path: 192.168.1.100:7791 # IP:PORT of BUS/RT broker (e.g. EVA ICS Kiosk manager)
+# On Linux commands are called with `sh -c`, on Windows with `pwsh.exe -Command`
 #commands:
   #reboot: sudo reboot # modify if required

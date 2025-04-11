@@ -1,4 +1,6 @@
-use crate::common::{system_cmd, system_cmd_x, AlertLevel, BusConfig, BusMode, PanelInfo, UEvent};
+use crate::common::{
+    shell_cmd, system_cmd, system_cmd_x, AlertLevel, BusConfig, BusMode, PanelInfo, UEvent,
+};
 use busrt::rpc::{Rpc, RpcClient, RpcError, RpcEvent, RpcHandlers, RpcResult};
 use eva_common::payload::{pack, unpack};
 use eva_common::Error;
@@ -215,11 +217,10 @@ impl RpcHandlers for Handlers {
             }
             "reboot" => {
                 if payload.is_empty() {
-                    let args = vec!["-c", crate::REBOOT_CMD.get().unwrap()];
                     warn!("calling reboot command");
                     tokio::spawn(async move {
                         tokio::time::sleep(Duration::from_secs(2)).await;
-                        system_cmd("sh", args).await.log_ef();
+                        shell_cmd(crate::REBOOT_CMD.get().unwrap()).await.log_ef();
                     });
                     Ok(None)
                 } else {

@@ -103,6 +103,7 @@ struct Config {
     sig: Option<String>,
     #[serde(default)]
     bus: Option<BusConfig>,
+    #[serde(default)]
     commands: Commands,
 }
 
