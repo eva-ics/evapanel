@@ -143,12 +143,12 @@ pub fn prepare_js_str(s: &str) -> String {
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn shell_cmd<'a>(cmd: &'a str) -> impl Future<Output = EResult<()>> + 'a {
+pub fn shell_cmd(cmd: &str) -> impl Future<Output = EResult<()>> + '_ {
     system_cmd("sh", ["-c", cmd])
 }
 
 #[cfg(target_os = "windows")]
-pub fn shell_cmd<'a>(cmd: &'a str) -> impl Future<Output = EResult<()>> + 'a {
+pub fn shell_cmd(cmd: &str) -> impl Future<Output = EResult<()>> + '_ {
     system_cmd("pwsh.exe", ["-Command", cmd])
 }
 
