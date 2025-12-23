@@ -10,5 +10,11 @@ linux-x86_64:
 docker-image-aarch64:
   docker build -t evapanel-build-env-aarch64:latest -f docker.cross/Dockerfile.cross.aarch64 .
 
+docker-image-armhf:
+  docker build -t evapanel-build-env-armhf:latest -f docker.cross/Dockerfile.cross.armhf .
+
 linux-aarch64:
   cross build --target aarch64-unknown-linux-gnu --release
+
+linux-armhf:
+  cross build --target armv7-unknown-linux-gnueabihf --release

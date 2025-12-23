@@ -1,0 +1,19 @@
+FROM arm32v7/debian:trixie
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG CROSS_DEB_ARCH=arm64
+
+RUN apt-get -q update
+RUN apt-get -qy install  --no-install-recommends \
+  build-essential \
+  g++ \
+  pkg-config \
+  libcairo2-dev \ 
+  libsoup-3.0-dev \
+  libjavascriptcoregtk-4.1-dev \
+  libwebkit2gtk-4.1-dev
+RUN apt-get -qy install --no-install-recommends \
+  libatk1.0-dev \
+  libpango1.0-dev \
+  libgdk-pixbuf-xlib-2.0-dev \
+  libsoup-3.0-dev
