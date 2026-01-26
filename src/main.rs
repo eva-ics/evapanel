@@ -1,12 +1,11 @@
 use clap::Parser;
 use eva_common::{EResult, Error};
 use log::{debug, error, info};
-use once_cell::sync::OnceCell;
 use serde::Deserialize;
-use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::sync::atomic;
 use std::thread;
+use std::{collections::HashSet, sync::OnceLock};
 
 use tao::{
     event_loop::{EventLoop, EventLoopBuilder},
@@ -22,10 +21,10 @@ use common::{BusConfig, PanelInfo, UEvent};
 
 const APP_ICON: &[u8] = include_bytes!("../res/evapanel.rgba");
 
-static HOME_URL: OnceCell<String> = OnceCell::new();
-static ALLOWED_URLS: OnceCell<HashSet<String>> = OnceCell::new();
-static MONITOR: OnceCell<String> = OnceCell::new();
-static REBOOT_CMD: OnceCell<String> = OnceCell::new();
+static HOME_URL: OnceLock<String> = OnceLock::new();
+static ALLOWED_URLS: OnceLock<HashSet<String>> = OnceLock::new();
+static MONITOR: OnceLock<String> = OnceLock::new();
+static REBOOT_CMD: OnceLock<String> = OnceLock::new();
 static ACTIVE: atomic::AtomicBool = atomic::AtomicBool::new(true);
 static DEBUG: atomic::AtomicBool = atomic::AtomicBool::new(false);
 const AGENT_NAME: &str = "EvaPanel";
@@ -166,7 +165,7 @@ fn main() -> EResult<()> {
             return Err(Error::io(format!(
                 "Unable to open {}: {}",
                 args.config_path, e
-            )))
+            )));
         }
     };
     env_logger::Builder::new()

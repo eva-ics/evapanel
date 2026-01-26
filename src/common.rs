@@ -90,12 +90,17 @@ impl Default for Engine {
 pub struct BusConfig {
     mode: BusMode,
     path: String,
+    token: Option<String>,
 }
 
 impl BusConfig {
     #[inline]
     pub fn path(&self) -> &str {
         &self.path
+    }
+    #[inline]
+    pub fn token(&self) -> Option<&str> {
+        self.token.as_deref()
     }
     #[inline]
     pub fn mode(&self) -> BusMode {

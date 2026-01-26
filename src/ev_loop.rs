@@ -1,4 +1,4 @@
-use crate::common::{prepare_js_str, BusConfig, State, UEvent};
+use crate::common::{BusConfig, State, UEvent, prepare_js_str};
 use eva_common::err_logger;
 use log::{error, info};
 use tao::{
@@ -124,10 +124,10 @@ pub fn run(
             } => {
                 info!("window closed, exiting");
                 crate::set_stopped();
-                if let Some(ref bus) = bus_config {
-                    if bus.is_unix_sock() {
-                        let _ = std::fs::remove_file(bus.path());
-                    }
+                if let Some(ref bus) = bus_config
+                    && bus.is_unix_sock()
+                {
+                    let _ = std::fs::remove_file(bus.path());
                 }
                 *control_flow = ControlFlow::Exit;
             }

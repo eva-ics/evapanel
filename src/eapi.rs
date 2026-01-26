@@ -1,10 +1,10 @@
 use crate::common::{
-    shell_cmd, system_cmd, system_cmd_x, AlertLevel, BusConfig, BusMode, PanelInfo, UEvent,
+    AlertLevel, BusConfig, BusMode, PanelInfo, UEvent, shell_cmd, system_cmd, system_cmd_x,
 };
 use busrt::rpc::{Rpc, RpcClient, RpcError, RpcEvent, RpcHandlers, RpcResult};
-use eva_common::payload::{pack, unpack};
 use eva_common::Error;
-use eva_common::{err_logger, EResult};
+use eva_common::payload::{pack, unpack};
+use eva_common::{EResult, err_logger};
 use log::{error, info, warn};
 use serde::Deserialize;
 use std::sync::atomic;
@@ -258,6 +258,7 @@ pub async fn launch_bus(
     panel_info: PanelInfo,
 ) -> EResult<()> {
     let path = bus.path();
+    let token = bus.token();
     let handlers = Handlers {
         api_proxy,
         info: panel_info,
@@ -282,7 +283,7 @@ pub async fn launch_bus(
             Ok(())
         }
         BusMode::Client => loop {
-            if let Err(e) = handle_bus_client(path, handlers.clone()).await {
+            if let Err(e) = handle_bus_client(path, token, handlers.clone()).await {
                 error!("BUS/RT client error: {}", e);
             }
             tokio::time::sleep(Duration::from_secs(5)).await;
@@ -290,15 +291,16 @@ pub async fn launch_bus(
     }
 }
 
-async fn handle_bus_client(path: &str, handlers: Handlers) -> EResult<()> {
+async fn handle_bus_client(path: &str, token: Option<&str>, handlers: Handlers) -> EResult<()> {
     let name = format!(
         "eva.panel.{}",
         hostname::get().map_err(Error::failed)?.to_string_lossy()
     );
-    let client = busrt::ipc::Client::connect(
-        &busrt::ipc::Config::new(path, &name).timeout(DEFAULT_BUS_TIMEOUT),
-    )
-    .await?;
+    let mut bus_config = busrt::ipc::Config::new(path, &name).timeout(DEFAULT_BUS_TIMEOUT);
+    if let Some(t) = token {
+        bus_config = bus_config.token(t);
+    }
+    let client = busrt::ipc::Client::connect(&bus_config).await?;
     info!("connected to BUS/RT broker at {} as {}", path, name);
     let rpc = RpcClient::new(client, handlers);
     while rpc.client().lock().await.is_connected() {
