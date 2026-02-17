@@ -930,6 +930,7 @@ dependencies = [
  "clap",
  "env_logger",
  "eva-common",
+ "glib",
  "hostname",
  "ico",
  "log",
@@ -940,6 +941,7 @@ dependencies = [
  "submap",
  "tao",
  "tokio",
+ "webkit2gtk",
  "winresource",
  "wry",
 ]

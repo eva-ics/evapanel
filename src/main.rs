@@ -32,7 +32,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const ARCH: &str = include_str!("../res/compile-arch");
 #[cfg(target_os = "windows")]
 const WEB_ENGINE: &str = "Chrome";
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 const WEB_ENGINE: &str = "WebKit";
 
 #[inline]
@@ -244,12 +244,22 @@ fn main() -> EResult<()> {
 
     #[cfg(target_os = "windows")]
     let webview = builder.build(&window).map_err(Error::failed)?;
+    #[cfg(target_os = "macos")]
+    let webview = builder.build(&window).map_err(Error::failed)?;
     #[cfg(target_os = "linux")]
     let webview = {
+        use glib::prelude::ObjectExt;
         use tao::platform::unix::WindowExtUnix;
+        use webkit2gtk::WebViewExt;
         use wry::WebViewBuilderExtUnix;
+        use wry::WebViewExtUnix;
         let vbox = window.default_vbox().unwrap();
-        builder.build_gtk(vbox).map_err(Error::failed)?
+        let webview = builder.build_gtk(vbox).map_err(Error::failed)?;
+        // Enable experimental WebTransport (requires WebKit with enable-webtransport setting).
+        if let Some(settings) = webview.webview().settings() {
+            settings.set_property("enable-webtransport", glib::Value::from(true));
+        }
+        webview
     };
 
     DEBUG.store(config.debug, atomic::Ordering::Relaxed);
