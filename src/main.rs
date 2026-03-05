@@ -255,9 +255,11 @@ fn main() -> EResult<()> {
         use wry::WebViewExtUnix;
         let vbox = window.default_vbox().unwrap();
         let webview = builder.build_gtk(vbox).map_err(Error::failed)?;
-        // Enable experimental WebTransport (requires WebKit with enable-webtransport setting).
+        // Enable experimental WebTransport when this WebKit build exposes the setting.
         if let Some(settings) = webview.webview().settings() {
-            settings.set_property("enable-webtransport", glib::Value::from(true));
+            if settings.find_property("enable-webtransport").is_some() {
+                settings.set_property("enable-webtransport", glib::Value::from(true));
+            }
         }
         webview
     };
